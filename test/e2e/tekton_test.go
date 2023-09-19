@@ -51,27 +51,35 @@ func TestTektonPipeline(t *testing.T) {
 		"--from-file=.dockerconfigjson="+test.Flags.DockerConfigJSON,
 		"--type=kubernetes.io/dockerconfigjson")
 	assert.NilError(t, err)
+	t.Logf("secret for the kn-deployer-account service account created")
 
 	_, err = kubectl.Run("apply", "-f", basedir+"/kn-deployer-rbac.yaml")
 	assert.NilError(t, err)
+	t.Logf("rbac policies applied")
 
-	_, err = kubectl.Run("apply", "-f", tektonCatalogTask("git-clone", "0.1"))
+	_, err = kubectl.Run("apply", "-f", tektonCatalogTask("git-clone", "0.4"))
 	assert.NilError(t, err)
+	t.Logf("catalog task for git-cone created")
 
 	_, err = kubectl.Run("apply", "-f", basedir+"/resources.yaml")
 	assert.NilError(t, err)
+	t.Logf("resources applied")
 
-	_, err = kubectl.Run("apply", "-f", tektonCatalogTask("buildah", "0.1"))
+	_, err = kubectl.Run("apply", "-f", tektonCatalogTask("buildah", "0.2"))
 	assert.NilError(t, err)
+	t.Logf("catalog task for buildah created")
 
 	_, err = kubectl.Run("apply", "-f", tektonCatalogTask("kn", "0.1"))
 	assert.NilError(t, err)
+	t.Logf("catalog task for kn created")
 
 	_, err = kubectl.Run("apply", "-f", basedir+"/kn-pipeline.yaml")
 	assert.NilError(t, err)
+	t.Logf("tekton pipeline created")
 
 	_, err = kubectl.Run("create", "-f", basedir+"/kn-pipeline-run.yaml")
 	assert.NilError(t, err)
+	t.Logf("tekton pipeline run created")
 
 	err = waitForPipelineSuccess(kubectl)
 	if err != nil {
@@ -79,8 +87,10 @@ func TestTektonPipeline(t *testing.T) {
 		assert.NilError(t, logsErr, "Unable to gather logs from pipeline pods")
 		t.Fatalf("PipelineRun failed with %v, printing logs from pipeline pods:\n%s", err, logs)
 	}
+        t.Logf("tekton pipeline created successfully")
 
 	r := test.NewKnRunResultCollector(t, it)
+        t.Logf("executing kn run result collector")
 
 	const serviceName = "hello"
 	out := it.Kn().Run("service", "describe", serviceName)
@@ -88,6 +98,7 @@ func TestTektonPipeline(t *testing.T) {
 	assert.Assert(t, util.ContainsAll(out.Stdout, serviceName, it.Kn().Namespace()))
 	assert.Assert(t, util.ContainsAll(out.Stdout, "Conditions", "ConfigurationsReady", "Ready", "RoutesReady"))
 	assert.NilError(t, it.Teardown())
+        t.Logf("tekton integration test completed")
 }
 
 func waitForPipelineSuccess(k test.Kubectl) error {

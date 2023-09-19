@@ -39,12 +39,13 @@ spec:
       workspace: shared-workspace
     params:
     - name: url
-      value: "https://github.com/knative/client"
+      value: "https://github.com/openshift/knative-client"
     - name: revision
-      value: "main"
+      value: "release-v1.9"
   - name: buildah-build
     taskRef:
       name: buildah
+      kind: ClusterTask
     runAfter:
     - fetch-kn-from-git
     workspaces:
@@ -55,10 +56,10 @@ spec:
       value: "$(params.IMAGE)"
     - name: DOCKERFILE
       value: ./test/test_images/helloworld/Dockerfile
-    - name: BUILDER_IMAGE
-      value: "quay.io/buildah/stable:latest"
     - name: FORMAT
       value: "$(params.IMAGE_FORMAT)"
+    - name: TLSVERIFY
+      value: "false"
   - name: kn-service-create
     taskRef:
       name: kn
@@ -66,7 +67,7 @@ spec:
     - buildah-build
     params:
     - name: kn-image
-      value: "gcr.io/knative-nightly/knative.dev/client/cmd/kn"
+      value: "gcr.io/knative-releases/knative.dev/client/cmd/kn:latest"
     - name: ARGS
       value:
         - "$(params.ARGS)"
