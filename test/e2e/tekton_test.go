@@ -39,6 +39,7 @@ const (
 )
 
 func TestTektonPipeline(t *testing.T) {
+        fmt.Println("Hello Mayukh")
 	it, err := test.NewKnTest()
 	assert.NilError(t, err)
 
