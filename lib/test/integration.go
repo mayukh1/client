@@ -256,7 +256,7 @@ func checkServiceAccount(serviceaccount string, namespace string, maxRetries int
 	retries := 0
 	for retries < MaxRetries {
 		output, _ := Kubectl{}.Run("get", "serviceaccount", serviceaccount, "-n", namespace)
-
+                fmt.Println("error creating Mayukh output  %s ", output)
 		// check for service account created
 		if strings.Contains(output, serviceaccount) {
 			return true
