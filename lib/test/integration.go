@@ -265,5 +265,5 @@ func checkServiceAccount(serviceaccount string, namespace string, maxRetries int
 		retries++
 		time.Sleep(RetrySleepDuration)
 	}
-	return true
+	return false
 }
